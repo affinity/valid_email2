@@ -22,7 +22,7 @@ module ValidEmail2
       @prohibited_domain_characters_regex = val
     end
 
-    def initialize(address, dns_timeout = 5, dns_nameserver = nil)
+    def initialize(address, dns_timeout: 5, dns_nameserver: nil, emoticons_check: true)
       @parse_error = false
       @raw_address = address
       @dns_timeout = dns_timeout
@@ -34,7 +34,11 @@ module ValidEmail2
         @parse_error = true
       end
 
-      @parse_error ||= address_contain_emoticons?
+      if emoticons_check
+        @parse_error ||= address_contain_emoticons?
+      else
+        @parse_error
+      end
     end
 
     def valid?

@@ -5,14 +5,20 @@ require "active_model/validations"
 module ValidEmail2
   class EmailValidator < ActiveModel::EachValidator
     def default_options
-      { disposable: false, mx: false, strict_mx: false, disallow_subaddressing: false, multiple: false, dns_timeout: 5, dns_nameserver: nil }
+      { disposable: false, mx: false, strict_mx: false, disallow_subaddressing: false, multiple: false, dns_timeout: 5, dns_nameserver: nil, emoticons_check: true }
     end
 
     def validate_each(record, attribute, value)
       return unless value.present?
       options = default_options.merge(self.options)
 
-      addresses = sanitized_values(value).map { |v| ValidEmail2::Address.new(v, options[:dns_timeout], options[:dns_nameserver]) }
+      addresses = sanitized_values(value).map { |v|
+        ValidEmail2::Address.new(
+          v,
+          dns_timeout: options[:dns_timeout],
+          dns_nameserver: options[:dns_nameserver],
+          emoticons_check: options[:emoticons_check])
+      }
 
       error(record, attribute) && return unless addresses.all?(&:valid?)
 
